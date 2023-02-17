@@ -12,18 +12,22 @@ int main(int argc, char** argv) {
 
     // Setup your ROS node
     std::string node_name = "arm_hardware_driver";
-    ros::CallbackQueue ros_queue;
+    //ros::CallbackQueue ros_queue;
     ros::init(argc, argv, node_name);
     ros::NodeHandle nh;
-    nh.setCallbackQueue(&ros_queue);
+    ros::Rate loop_rate(20);
+  //  nh.setCallbackQueue(&ros_queue);
 
     // Create an instance of your class
     ArmHardwareDriver teensyComm(nh);
 
     // Start up ros. This will continue to run until the node is killed
-    ros::MultiThreadedSpinner spinner(0);
-    spinner.spin(&ros_queue);
-
+    //ros::MultiThreadedSpinner spinner(0);
+    //spinner.spin(&ros_queue);
+    while(ros::ok()){
+    loop_rate.sleep();
+    ros::spinOnce();
+    }
     // Once the node stops, return 0
     return 0;
 }

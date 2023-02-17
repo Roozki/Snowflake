@@ -23,13 +23,12 @@
 #include <sb_utils.h>
 
 // Other
-#include <libserial/SerialPort.h>
+//#include <libserial/SerialPort.h>
 
 
 class ArmHardwareDriver {
   public:
     ArmHardwareDriver(ros::NodeHandle& nh);
-    void teensySerialCallback(const std_msgs::String::ConstPtr& inMsg);
     void parseInput(std::string inMsg);
     void joint_space_motion(std::string inMsg);
     void drill_motion(std::string inMsg);
@@ -137,18 +136,21 @@ class ArmHardwareDriver {
 
   private:
     ros::NodeHandle nh;
+    void allControllerCallback(const std_msgs::String::ConstPtr& inMsg);
     void armPositionCallBack(const sb_msgs::ArmPosition::ConstPtr& cmd_msg);
-    void teensyFeedback(const ros::TimerEvent& e);
+  //s  void teensyFeedback(const ros::Timer e);
 
     ros::Subscriber subPro;
     ros::Subscriber sub_command_pos;
+    ros::Subscriber joy_sub;
     ros::Publisher pub_observed_pos;
+    ros::Publisher rosserial_pub;
     ros::Timer feedbackLoop;
 
     // The SerialStream to/from the teensy
-    LibSerial::SerialPort teensy;
+    //LibSerial::SerialPort teensy;
 
     // The Port the teensy is connected to
-    std::string port;
+    //std::string port;
 };
 #endif // ARM_HARDWARE_DRIVER_MYNODE_H

@@ -16,19 +16,21 @@ ArmHardwareDriver::ArmHardwareDriver(ros::NodeHandle& nh) : nh(nh) {
     int queue_size = 10;
 
     subPro = nh.subscribe(
-    "/cmd_arm", queue_size, &ArmHardwareDriver::teensySerialCallback, this);
+    "/cmd_arm", queue_size, &ArmHardwareDriver::allControllerCallback, this);
     sub_command_pos = nh.subscribe(
     "/cmd_pos_arm", queue_size, &ArmHardwareDriver::armPositionCallBack, this);
     pub_observed_pos =
     private_nh.advertise<sb_msgs::ArmPosition>("/observed_pos_arm", 1);
 
+    rosserial_pub = private_nh.advertise<std_msgs::String>("/rosserial_cmd", 5);
+  
     // Get Params
-    SB_getParam(
-    private_nh, "/hardware_driver/port", port, (std::string) "/dev/ttyACM1");
+    //SB_getParam(
+    //private_nh, "/hardware_driver/port", port, (std::string) "/dev/ttyACM1");
     // Open the given serial port
-    teensy.Open(port); 
-    teensy.SetBaudRate(LibSerial::BaudRate::BAUD_9600);
-    teensy.SetCharacterSize(LibSerial::CharacterSize::CHAR_SIZE_8);
+    //teensy.Open(port); 
+    //teensy.SetBaudRate(LibSerial::BaudRate::BAUD_9600);
+    //teensy.SetCharacterSize(LibSerial::CharacterSize::CHAR_SIZE_8);
 
     encCmd.resize(num_joints_);
     armCmd.resize(num_joints_);
@@ -41,15 +43,15 @@ ArmHardwareDriver::ArmHardwareDriver(ros::NodeHandle& nh) : nh(nh) {
         encStepsPerDeg[i] = reductions[i] * ppr * 5.12 / 360.0;
     }
 
-    float feed_freq = 10.131; // not exactly 5 to ensure that this doesn't regularly interfere with HW interface callback
-    ros::Duration feedbackFreq = ros::Duration(1.0/feed_freq);
-    feedbackLoop = nh.createTimer(feedbackFreq, &ArmHardwareDriver::teensyFeedback, this);
-
+    //float feed_freq = 10.131; // not exactly 5 to ensure that this doesn't regularly interfere with HW interface callback
+    //ros::Duration feedbackFreq = ros::Duration(1.0/feed_freq);
+    ///feedbackLoop = nh.createTimer(feedbackFreq, &ArmHardwareDriver::teensyFeedback, this);
+    //ros::spin();
 }
 
 //Timer initiated event to request joint feedback 
-void ArmHardwareDriver::teensyFeedback(const ros::TimerEvent& e)
-{
+//void ArmHardwareDriver::teensyFeedback(const ros::TimerEvent& e)
+//{
 
     //ROS_INFO("timer working");
     /*
@@ -62,7 +64,7 @@ void ArmHardwareDriver::teensyFeedback(const ros::TimerEvent& e)
             //requestJPFeedback();
         //}
     // }
-}
+//}
 
 void ArmHardwareDriver::requestEEFeedback()
 {
@@ -80,8 +82,9 @@ void ArmHardwareDriver::requestJPFeedback()
 
 // Callback function to relay pro controller messages to teensy MCU on arm via
 // rosserial
-void ArmHardwareDriver::teensySerialCallback(
+void ArmHardwareDriver::allControllerCallback(
 const std_msgs::String::ConstPtr& inMsg) {
+     ROS_INFO("recieved %s", inMsg->data.c_str());
     parseInput(inMsg->data);
 }
 
@@ -354,10 +357,13 @@ void ArmHardwareDriver::sendMsg(std::string outMsg) {
     if(serialOpen)
     {
     */
+         std_msgs::String outRSmsg;
+      //  outRSmsg.data = "";
+       outRSmsg.data = outMsg;
         // close serial port to other processes
-        serialOpen = false;
-        dataInTransit = true;
-        teensy.Write(outMsg);
+        rosserial_pub.publish(outRSmsg);
+
+       // teensy.Write(outMsg);
     // }
     ROS_INFO("Sent via serial: %s", outMsg.c_str());
 }
@@ -370,9 +376,11 @@ void ArmHardwareDriver::recieveMsg() {
 	    */
         std::stringstream buffer;
         char next_char;
+        
         do {
-            teensy.WriteByte(next_char);
-	    // ROS_INFO("next_char: %c", next_char);
+         //   teensy.WriteByte(next_char);
+	     ROS_INFO("next_char: %c", next_char);
+
             buffer << next_char;
         } while (next_char != 'Z');
         std::string inMsg = buffer.str();
@@ -391,8 +399,8 @@ void ArmHardwareDriver::recieveMsg() {
             ROS_INFO("ARM CALIBRATION COMPLETE, NOW ACCEPTING CONTROLLER COMMANDS!");
         }
         // open serial port to other processes
-        serialOpen = true;
-        dataInTransit = false;  
+       // serialOpen = true;
+       // dataInTransit = false;  
 	/*
     }
     */

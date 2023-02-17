@@ -22,6 +22,8 @@ AllController::AllController(int argc, char** argv, string node_name) {
     string modePublisher = "/moveit_toggle";
     string joyTopic = "/joy";
     // string moveGrpPublisher = "/move_group_trigger";
+    //ros::Rate loop_rate(10);
+
     ros::init(argc, argv, node_name);
     ros::NodeHandle private_nh("~");
     if (private_nh.param<double>("X", X_SENSITIVITY, 1.0)) {
@@ -49,6 +51,11 @@ AllController::AllController(int argc, char** argv, string node_name) {
     x = 0;
     z = 0;
     processInputs();
+
+    // while(ros::ok){
+    //     loop_rate.sleep();
+
+    // }
 }
 
 void AllController::readJoyInputs(const sensor_msgs::Joy::ConstPtr& msg){

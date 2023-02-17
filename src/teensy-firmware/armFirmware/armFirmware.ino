@@ -1,20 +1,17 @@
 /*
-Created By: Tate Kolton, Rowan Zawadzki
+Created By: Tate Kolton, Graeme Dockrill
 Created On: December 21, 2021
-Updated On: Febuary 17, 2023
+Updated On: January 10, 2023
 Description: Main firmware for driving a 6 axis arm via ROS on a teensy 4.1 MCU
 */
-#include "rosArmFirmware.h"
 
-void setup() {  // setup function to initialize pins and provide initial homing to the arm
-  nh.getHardware()->setBaud(57600);
-  nh.initNode();
-  nh.advertise(heart);
-  //nh.advertise(observer);
-  //nh.subscribe(driver_cmd_sub);
-nh.negotiateTopics();
-      //Serial.begin(9600);
+// header file with all constants defined and libraries included
+#include "armFirmware.h"
 
+// setup function to initialize pins and provide initial homing to the arm.
+void setup() {
+
+  Serial.begin(9600);
 
   for(int i=0; i<NUM_AXES; i++) {
     ENC_STEPS_PER_DEG[i] = ppr[i]*red[i]*(ENC_MULT[i]/360.0);
@@ -24,7 +21,6 @@ nh.negotiateTopics();
   }
 
 min_steps[0] = -max_steps[0];
-
   
   // initializes end effector motor
   pinMode(EEstepPin, OUTPUT);
@@ -33,7 +29,6 @@ min_steps[0] = -max_steps[0];
   endEff.setMaxSpeed(speedEE);
   endEff.setAcceleration(accEE);
   endEff.setCurrentPosition(1000);
-
 
   // initializes step pins, direction pins, limit switch pins, and stepper motor objects for accelStepper library
   for(i = 0; i<NUM_AXES; i++) {
@@ -45,39 +40,39 @@ min_steps[0] = -max_steps[0];
     }
     
 // waits for user to press "home" button before rest of functions are available
-//waitForHome();
-
-  nh.spinOnce(); 
+waitForHome();
 }
 
-void loop() {
-  if (millis() - posTEMP > posINTERVAL) {
-    //sendCurrentPosition();
-
-    posTEMP = 0;
-  } 
-if(millis() - beatTEMP > beatINTERVAL){
-    beat.data += 1;
-    heart.publish(&beat);
-    beatTEMP = millis();
-
-  }
-
- // receives command from serial and executes accoringly
-//  recieveCommand();
+// main program loop
+void loop()
+{
+  // receives command from serial and executes accoringly
+  recieveCommand();
 
   // run steppers to target position
-    //runSteppers();
-    delay(10);
-    
-     nh.spinOnce();
-
+    runSteppers();
 }
 
-void rosserialCallback(const std_msgs::String& msg)
+void recieveCommand()
 {
-    parseMessage(msg.data);
-  
+  String inData = "";
+  char recieved = '\0';
+
+  // if a message is present, copy it to inData
+  if(Serial.available()>0)
+  {
+    do {
+      recieved = Serial.read();
+      inData += String(recieved);
+    } while(recieved != '\n');
+  }
+
+  // parse the received data
+  if(recieved == '\n')
+  {
+
+    parseMessage(inData);
+  }
 }
 
 void parseMessage(String inMsg)
