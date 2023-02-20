@@ -7,17 +7,18 @@ Description: Main firmware for driving a 6 axis arm via ROS on a teensy 4.1 MCU
 #include "rosArmFirmware.h"
 
 void setup() {  // setup function to initialize pins and provide initial homing to the arm
-  nh.getHardware()->setBaud(57600); //lets us define the speed of serial communication
+  nh.getHardware()->setBaud(115200); //lets us define the speed of serial communication
   nh.initNode();
   nh.advertise(heart);
-  //nh.advertise(observer);
+  nh.advertise(positionUpdater);
+  nh.advertise(stringFeedback);
   nh.subscribe(teensy_cmd_sub);
-  nh.negotiateTopics();
+  //nh.negotiateTopics();
   //Serial.begin(9600);
-while(!nh.connected()){ //should ensure a more stable startup
+//while(!nh.connected()){ //should ensure a more stable startup
     nh.spinOnce();
 
-}
+//}
   //nh.spinOnce();
 
     for(int i=0; i<NUM_AXES; i++) {
@@ -50,18 +51,18 @@ while(!nh.connected()){ //should ensure a more stable startup
 
   // waits for user to press "home" button before rest of functions are available
   //waitForHome();
-  
-}
-
-void loop() {
-  // if (millis() - posTEMP > posINTERVAL) {
-  //   //sendCurrentPosition();
-
-  //   posTEMP = 0;
-  // }
   while(!initHome){ //waits for home
     nh.spinOnce();
   }
+}
+
+void loop() {
+   if (millis() - posTEMP > posINTERVAL) {
+     //sendCurrentPosition();
+
+     posTEMP = 0;
+   }
+  
    if(millis() - beatTEMP > beatINTERVAL){
   beat.data += 1;
   heart.publish(&beat);
@@ -75,7 +76,7 @@ void loop() {
 
   // run steppers to target position
   //runSteppers();
-  delay(10);
+  delay(1);
 
   nh.spinOnce();
 }
@@ -112,20 +113,29 @@ void parseMessage(String inMsg) {
 
   else if (function == "HM") {
     homeArm();
-    initHome = true;
+    sendCurrentPosition();
 
+    initHome = true;
   }
 }
 
-void sendMessage(char outChar) {
-  String outMsg = String(outChar);
-  //Serial.print(outMsg);
-}
+// void sendMessage(char outChar) {
+//   String outMsg = String(outChar);
+//   //Serial.print(outMsg);
+// }
 
 void sendCurrentPosition() {
-  String outMsg = String("JP") + String("A") + String(curEncSteps[0]) + String("B") + String(curEncSteps[1]) + String("C") + String(curEncSteps[2])
-                  + String("D") + String(curEncSteps[3]) + String("E") + String(curEncSteps[4]) + String("F") + String(curEncSteps[5]) + String("Z");
+  //change outMsg to array of current angles
+  float angles[6] = {22.2, 22.3, 22.4, 55.7, 34.2, 34.5};
+ // String outMsg = String("JP") + String("A") + String(curEncSteps[0]) + String("B") + String(curEncSteps[1]) + String("C") + String(curEncSteps[2])
+ //                 + String("D") + String(curEncSteps[3]) + String("E") + String(curEncSteps[4]) + String("F") + String(curEncSteps[5]) + String("Z");
+ //test
+
+ //for(int i = 0; i < NUM_AXES; i++){
+  CurrentAngles.positions[1] = 24.64;
+ //}
   //Serial.print(outMsg);
+  positionUpdater.publish(&CurrentAngles);
 }
 
 void sendFeedback(String inMsg) {
@@ -397,10 +407,10 @@ void homeArm() {  // main function for full arm homing
 if(!simOnly){
   initializeHomingMotion();
   homeAxes();
-}
+
   initializeMotion();
   zeroEncoders();
-
+}
   // clear serial port in case of garbage values
   // while(Serial.available() !=0)
   // {
@@ -409,6 +419,8 @@ if(!simOnly){
 
   // // notify hardware driver that homing has completed
   // Serial.print("HCZ");
+  Feedback.data = "HCZ";
+  stringFeedback.publish(&Feedback);
 }
 
 // Runs through and checks if each axis has reached its limit switch, then runs it to specified home position

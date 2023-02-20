@@ -15,14 +15,21 @@ ArmHardwareDriver::ArmHardwareDriver(ros::NodeHandle& nh) : nh(nh) {
     // Setup Subscribers
     int queue_size = 10;
 
-    subPro = nh.subscribe(
-    "/cmd_arm", queue_size, &ArmHardwareDriver::allControllerCallback, this);
+    subPro = nh.subscribe( 
+        "/cmd_arm", queue_size, &ArmHardwareDriver::allControllerCallback, this);
+
     sub_command_pos = nh.subscribe(
-    "/cmd_pos_arm", queue_size, &ArmHardwareDriver::armPositionCallBack, this);
-    pub_observed_pos =
-    private_nh.advertise<sb_msgs::ArmPosition>("/observed_pos_arm", 1);
+        "/cmd_pos_arm", queue_size, &ArmHardwareDriver::armPositionCallBack, this);
+
+    rosserial_string_sub = nh.subscribe(
+        "/rosserial_string_feedback", queue_size, &ArmHardwareDriver::teensyStringCallback, this);
+
+
+    // pub_observed_pos =
+    // private_nh.advertise<sb_msgs::ArmPosition>("/actual_pos_arm", 1);
 
     rosserial_pub = private_nh.advertise<std_msgs::String>("/rosserial_cmd", 5);
+
   
     // Get Params
     //SB_getParam(
@@ -70,14 +77,14 @@ void ArmHardwareDriver::requestEEFeedback()
 {
     std::string outMsg = "FBE\n";
     sendMsg(outMsg);
-    recieveMsg();
+    //recieveMsg();
 }
 
 void ArmHardwareDriver::requestJPFeedback()
 {
     std::string outMsg = "FBJ\n";
     sendMsg(outMsg);
-    recieveMsg();
+  //  recieveMsg();
 }
 
 // Callback function to relay pro controller messages to teensy MCU on arm via
@@ -86,6 +93,15 @@ void ArmHardwareDriver::allControllerCallback(
 const std_msgs::String::ConstPtr& inMsg) {
      ROS_INFO("recieved %s", inMsg->data.c_str());
     parseInput(inMsg->data);
+}
+
+void ArmHardwareDriver::teensyStringCallback( //this callback relpaces the recieveMsg functoin
+const std_msgs::String::ConstPtr& inMsg) {
+     ROS_INFO("recieved FROM TEENSY %s", inMsg->data.c_str());
+     if(inMsg->data == "HC"){
+        ROS_INFO("Homing Complete!");
+     homeFlag = true; 
+     }
 }
 
 void ArmHardwareDriver::parseInput(std::string inMsg) {
@@ -290,8 +306,7 @@ void ArmHardwareDriver::homeArm() {
     std::string outMsg = "HM\n";
     homeFlag = false;
     sendMsg(outMsg);
-    recieveMsg();
-    homeFlag = true;
+   // recieveMsg();
 }
 
 void ArmHardwareDriver::homeEE() {
@@ -313,7 +328,7 @@ const sb_msgs::ArmPosition::ConstPtr& commanded_msg) {
     }
     outMsg += "\n";
     sendMsg(outMsg);
-    recieveMsg();
+   // recieveMsg();
 }
 
 void ArmHardwareDriver::updateEncoderSteps(std::string msg) {

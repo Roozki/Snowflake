@@ -32,13 +32,16 @@ Description: Header file for firmware for driving a 6 axis arm via ROS on a teen
 ros::NodeHandle nh;
 std_msgs::Int16 beat;
 std_msgs::String cmdMsg;
+std_msgs::String Feedback;
+
 //sb_msgs::ArmPosition INangles;
-//sb_msgs::ArmPosition OBSangles;
+sb_msgs::ArmPosition CurrentAngles;
 //node slowdowns, to relieve serial processing
 int beatTEMP = millis();
 int beatINTERVAL = 1000; //ms
 int posTEMP = millis();
 int posINTERVAL = 100; //ms
+int rosRATE = 10; //1/hz
 
 bool initHome = false; //flag variable to replace "wait for home"
 
@@ -287,6 +290,7 @@ void waitForHome();
 
 ros::Publisher heart("/heartbeat", &beat);
 //ros::Publisher observer("/observed_arm_pos", &OBSangles, 100);
-
-ros::Subscriber<std_msgs::String> teensy_cmd_sub("rosserial_cmd", &rosserialCallback);
+ros::Publisher positionUpdater("/actual_pos_arm", &CurrentAngles);
+ros::Publisher stringFeedback("/rosserial_string_feedback", &Feedback); //essentially for HC, homing complete msg
+ros::Subscriber<std_msgs::String> teensy_cmd_sub("/rosserial_cmd", &rosserialCallback);
 

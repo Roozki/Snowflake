@@ -138,6 +138,8 @@ class ArmHardwareDriver {
     ros::NodeHandle nh;
     void allControllerCallback(const std_msgs::String::ConstPtr& inMsg);
     void armPositionCallBack(const sb_msgs::ArmPosition::ConstPtr& cmd_msg);
+    void teensyStringCallback(const std_msgs::String::ConstPtr& inMsg);
+
   //s  void teensyFeedback(const ros::Timer e);
 
     ros::Subscriber subPro;
@@ -145,6 +147,7 @@ class ArmHardwareDriver {
     ros::Subscriber joy_sub;
     ros::Publisher pub_observed_pos;
     ros::Publisher rosserial_pub;
+    ros::Subscriber rosserial_string_sub;
     ros::Timer feedbackLoop;
 
     // The SerialStream to/from the teensy
