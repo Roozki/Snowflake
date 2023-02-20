@@ -6,13 +6,14 @@ Description: Header file for firmware for driving a 6 axis arm via ROS on a teen
 */
 
 #include <AccelStepper.h>
-#include <HX711.h>
+//#include <HX711.h>
 #include <Encoder.h>
 #include <ros.h>
+//#include <std_ms\>
 #include <std_msgs/String.h>
 #include <std_msgs/Int16.h>
 // #include <std_msgs/Float64MultiArray.h>
-// #include <sb_msgs/ArmPosition.h>
+#include <sb_msgs/ArmPosition.h>
 //for if no arm is connected, simulation only needed
 #define simOnly 1
 // general parameters
@@ -30,6 +31,7 @@ Description: Header file for firmware for driving a 6 axis arm via ROS on a teen
 //ros stuff
 ros::NodeHandle nh;
 std_msgs::Int16 beat;
+std_msgs::String cmdMsg;
 //sb_msgs::ArmPosition INangles;
 //sb_msgs::ArmPosition OBSangles;
 //node slowdowns, to relieve serial processing
@@ -37,6 +39,8 @@ int beatTEMP = millis();
 int beatINTERVAL = 1000; //ms
 int posTEMP = millis();
 int posINTERVAL = 100; //ms
+
+bool initHome = false; //flag variable to replace "wait for home"
 
 
 
@@ -85,7 +89,7 @@ float red[6] = {50.0, 160.0, 93.07, 43.08, 19, 14};
 // End effector variables
 const float calibrationFactor = -111.25;
 float force;
-HX711 scale;
+//HX711 scale;
 const int dataPin = 34;
 const int clkPin = 33;
 int calPos = 0;
@@ -281,7 +285,8 @@ void waitForHome();
 
 //more ros
 
-ros::Publisher heart("/heartbeat", &beat, 5);
+ros::Publisher heart("/heartbeat", &beat);
 //ros::Publisher observer("/observed_arm_pos", &OBSangles, 100);
-ros::Subscriber<std_msgs::String> driver_cmd_sub("rosserial_cmd", &rosserialCallback, 2);
+
+ros::Subscriber<std_msgs::String> teensy_cmd_sub("rosserial_cmd", &rosserialCallback);
 
