@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>746</width>
+    <width>846</width>
     <height>688</height>
    </rect>
   </property>
@@ -43,7 +43,8 @@
      </rect>
     </property>
     <layout class="QGridLayout" name="gridLayout_3">
-     <item row="0" column="0">
+    <!-- Current mode -->
+     <item row="0" column="1">
       <layout class="QGridLayout" name="gridLayout" rowminimumheight="0">
        <item row="0" column="0">
         <widget class="QLabel" name="label">
@@ -54,15 +55,15 @@
           </size>
          </property>
          <property name="text">
-          <string>Left</string>
+          <string>Current mode: </string>
          </property>
          <property name="alignment">
-          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          <set>Qt::AlignLeft|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
         </widget>
        </item>
        <item row="0" column="1">
-        <widget class="QLCDNumber" name="left_lcd">
+        <widget class="QLabel" name="mode_lcd">
          <property name="minimumSize">
           <size>
            <width>200</width>
@@ -73,10 +74,11 @@
        </item>
       </layout>
      </item>
-     <item row="0" column="1">
+    <!-- Nuc temperature -->
+     <item row="1" column="1">w
       <layout class="QGridLayout" name="gridLayout_2" rowminimumheight="0">
-       <item row="0" column="2">
-        <widget class="QLCDNumber" name="right_lcd">
+       <item row="1" column="1">
+        <widget class="QLCDNumber" name="nuc_temp_lcd">
          <property name="minimumSize">
           <size>
            <width>200</width>
@@ -91,7 +93,7 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="1">
+       <item row="1" column="0">
         <widget class="QLabel" name="label_3">
          <property name="maximumSize">
           <size>
@@ -100,7 +102,7 @@
           </size>
          </property>
          <property name="text">
-          <string>Right</string>
+          <string>Nuc temp</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -111,6 +113,7 @@
      </item>
     </layout>
    </widget>
+    <!-- Rover temperature -->
    <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
@@ -121,7 +124,7 @@
      </rect>
     </property>
     <layout class="QGridLayout" name="gridLayout_4">
-     <item row="0" column="0">
+     <item row="2" column="0">
       <widget class="QLabel" name="label_2">
        <property name="minimumSize">
         <size>
@@ -136,14 +139,15 @@
         </size>
        </property>
        <property name="text">
-        <string>Linear Velocity</string>
+        <string>Rover ambient temperature</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
       </widget>
      </item>
-     <item row="1" column="0" rowspan="2">
+     <!--Elec box temperature-->
+     <item row="3" column="0" rowspan="2">
       <widget class="QLabel" name="label_4">
        <property name="minimumSize">
         <size>
@@ -158,7 +162,7 @@
         </size>
        </property>
        <property name="text">
-        <string>Angular Velocity</string>
+        <string>Elec box temperature</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -166,7 +170,7 @@
       </widget>
      </item>
      <item row="2" column="1">
-      <widget class="QLCDNumber" name="linear_lcd">
+      <widget class="QLCDNumber" name="rover_temp_lcd">
        <property name="minimumSize">
         <size>
          <width>200</width>
@@ -181,8 +185,8 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="1" rowspan="2">
-      <widget class="QLCDNumber" name="angular_lcd">
+     <item row="3" column="1" rowspan="2">
+      <widget class="QLCDNumber" name="elec_box_temp_lcd">
        <property name="minimumSize">
         <size>
          <width>200</width>
