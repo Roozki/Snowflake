@@ -95,7 +95,7 @@ void AllController::readJoyInputs(const sensor_msgs::Joy::ConstPtr& msg){
 
   void AllController::setup() {
      system(
-     "gnome-terminal --tab -- bash -c 'rosrun joy joy_node _deadzone:=0.1 _autorepeat_rate:=40 _coalesce_interval:=0.025'");
+     "GNOME_TERMINAL_SCREEN="" gnome-terminal -- bash -c 'rosrun joy joy_node _deadzone:=0.1 _autorepeat_rate:=40 _coalesce_interval:=0.025'");
 
      ROS_INFO(
      "ALLCONTROLLER INITIATED, CURRENTLY PARSING FOR PROCONTROLLER");
