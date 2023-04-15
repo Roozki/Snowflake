@@ -27,7 +27,7 @@ ArmHardwareDriver::ArmHardwareDriver(ros::NodeHandle& nh) : nh(nh) {
 
 
     teensy.setBaudrate(115200);
-    teensy.setPort("/dev/ttyACM1");
+    teensy.setPort("/dev/ttyACM0");
     teensy.open();
     teensy.setDTR(false);
     teensy.setRTS(false);
